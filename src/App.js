@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import RoomList from './components/RoomList.js';
+import MessageList from './components/MessageList.js';
 import * as firebase from 'firebase';
-
 
   // Initialize Firebase
   var config = {
@@ -16,6 +16,7 @@ import * as firebase from 'firebase';
   firebase.initializeApp(config);
 
 class App extends Component {
+
   render() {
     return (
       <div className="App">
