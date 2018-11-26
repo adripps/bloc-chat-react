@@ -17,10 +17,36 @@ import * as firebase from 'firebase';
 
 class App extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentRoom: '',
+      currentRoomKey: '',
+    };
+  }
+
+  activeRoom (e, room) {
+    if (e.target.innerText === room.name){
+      this.setState ({ currentRoom: room.name})
+      this.setState ({ currentRoomKey: room.key})
+    }
+  }
+
   render() {
     return (
       <div className="App">
-        <RoomList firebase={firebase}/>
+        <h1>Bloc Chat</h1>
+        <RoomList
+          firebase={firebase}
+          activeRoom={ (e, room) => this.activeRoom(e, room)}
+          currentRoom={this.state.currentRoom}
+        />
+        <MessageList
+          firebase={firebase}
+          activeRoom={ (e, room) => this.activeRoom(e, room)}
+          currentRoom={this.state.currentRoom}
+          currentRoomKey={this.state.currentRoomKey}
+        />
       </div>
     );
   }

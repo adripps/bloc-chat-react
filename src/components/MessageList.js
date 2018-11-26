@@ -6,39 +6,72 @@ class MessageList extends Component {
     super(props);
 
     this.state = {
-      username: "",
-      content: [],
-      sentAt: "",
-      roomId: "",
-      inputValue: "",
+      messages: [
+        {username: "", content: "", sentAt: "", roomId: ""}
+      ],
+      newMessage: "",
+      timeSent: ''
     };
 
-    this.roomsRef = this.props.firebase.database().ref('rooms');
+    this.messagesRef = this.props.firebase.database().ref('messages');
+
+    this.filterMessages = this.filterMessages.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.roomsRef.on('child_added', snapshot => {
-    const room = snapshot.val();
-    room.key = snapshot.key;
-    console.log(this.props.currentRoom)
-    this.setState({ content: this.state.content.concat (room.messages.message) })
+    this.messagesRef.on('child_added', snapshot => {
+    const messages = snapshot.val();
+    messages.key = snapshot.key;
+    this.setState({ messages: this.state.messages.concat( messages ) })
     });
   }
 
-  getRoomId() {
-    this.setState ({ roomId: 'test'})
+  filterMessages(e, message, index) {
+    console.log(this.props.currentRoom)
+    if (this.props.currentRoom) {
+      console.log('test')
+      this.setState ({ newMessage: message.content})
+    }
   }
+
+   handleChange(e) {
+     this.setState({ newMessage: e.target.value })
+   }
+
+   handleSubmit(e) {
+     e.preventDefault();
+     if (!this.state.newMessage) {return}
+     this.messagesRef.push({
+       content: this.state.newMessage,
+       roomId: this.props.currentRoomKey,
+       username: 'Test User',
+       sentAt: this.props.firebase.database.ServerValue.TIMESTAMP
+     });
+     this.setState ({ newMessage: ''})
+   }
 
   render() {
     return (
-      <div>
-        <h1></h1>
-        <h2>{this.state.username}</h2>
-        <ul className="messagesList"> {this.state.content.map(() =>
-          <li className='messages'> {this.state.content} </li>
-          )}
-        </ul>
-        <div className="timeStamp">{this.state.sentAt}</div>
+      <div className='messages'>
+        <form id='createMessage' onSubmit={ (e) => this.handleSubmit(e) }>
+         <fieldset>
+          <input type='text' placeholder='Enter a Message' id='createdMessage' value= {this.state.newMessage} onChange={ (e) => this.handleChange(e)}/>
+          <input type='submit' value='Submit'/>
+         </fieldset>
+        </form>
+        <ul className="messageList">
+          {this.state.messages
+            .filter(message => message.roomId === this.props.currentRoomKey)
+            .map((message, index)=>
+            <div key= {index}>
+              <li className="username">{message.username}</li>
+              <li className="content">{message.content}</li>
+              <li className="sentAt">{message.sentAt}</li>
+            </div>
+           )}
+       </ul>
       </div>
     );
   }
