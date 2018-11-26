@@ -10,12 +10,10 @@ class MessageList extends Component {
         {username: "", content: "", sentAt: "", roomId: ""}
       ],
       newMessage: "",
-      timeSent: ''
     };
 
     this.messagesRef = this.props.firebase.database().ref('messages');
 
-    this.filterMessages = this.filterMessages.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -28,28 +26,22 @@ class MessageList extends Component {
     });
   }
 
-  filterMessages(e, message, index) {
-    console.log(this.props.currentRoom)
-    if (this.props.currentRoom) {
-      console.log('test')
-      this.setState ({ newMessage: message.content})
-    }
+  handleChange(e) {
+     this.setState({ newMessage: e.target.value })
   }
 
-   handleChange(e) {
-     this.setState({ newMessage: e.target.value })
-   }
-
-   handleSubmit(e) {
+  handleSubmit(e) {
      e.preventDefault();
      if (!this.state.newMessage) {return}
-     this.messagesRef.push({
-       content: this.state.newMessage,
-       roomId: this.props.currentRoomKey,
-       username: 'Test User',
-       sentAt: this.props.firebase.database.ServerValue.TIMESTAMP
-     });
-     this.setState ({ newMessage: ''})
+     if (this.props.currentRoom !== '') {
+       this.messagesRef.push({
+         content: this.state.newMessage,
+         roomId: this.props.currentRoomKey,
+         username: 'Test User',
+         sentAt: this.props.firebase.database.ServerValue.TIMESTAMP
+       });
+       this.setState ({ newMessage: ''})
+    }
    }
 
   render() {
